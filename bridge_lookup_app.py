@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-# read the CSV directly from GitHub (raw URL)
 CSV_URL = "https://raw.githubusercontent.com/MFaeli/Bridge_Results_Explorer/main/bridge_fullhalf_stiffness_PRELIMINARY.csv"
 
 @st.cache_data
@@ -18,15 +17,34 @@ st.caption("Browse finite-element results for staged deck replacement with false
 st.write("Select a bridge configuration to see its computed deflection:")
 
 col1, col2 = st.columns(2)
+
 with col1:
+    # 1. span first
     span = st.selectbox("Span (in)", sorted(df["span_in"].unique()))
-    width = st.selectbox("Width (in)", sorted(df["width_in"].unique()))
-    fc = st.selectbox("f'c (psi)", sorted(df["fc_psi"].unique()))
+    # 2. width: only those existing for this span
+    width_opts = sorted(df[df["span_in"] == span]["width_in"].unique())
+    width = st.selectbox("Width (in)", width_opts)
+    # 3. fc: only those existing for this span+width
+    fc_opts = sorted(df[(df["span_in"] == span) &
+                        (df["width_in"] == width)]["fc_psi"].unique())
+    fc = st.selectbox("f'c (psi)", fc_opts)
+
 with col2:
-    depth = st.selectbox("Box depth (in)", sorted(df["depth_in"].unique()))
-    k = st.selectbox("Spring stiffness (lbf/in)", sorted(df["k_spring_lbf_per_in"].unique()))
+    # 4. depth: ONLY depths that exist for this span+width+fc (the key fix)
+    depth_opts = sorted(df[(df["span_in"] == span) &
+                           (df["width_in"] == width) &
+                           (df["fc_psi"] == fc)]["depth_in"].unique())
+    depth = st.selectbox("Box depth (in)", depth_opts)
+    # 5. stiffness: only those existing for this exact bridge
+    k_opts = sorted(df[(df["span_in"] == span) &
+                       (df["width_in"] == width) &
+                       (df["fc_psi"] == fc) &
+                       (df["depth_in"] == depth)]["k_spring_lbf_per_in"].unique())
+    k = st.selectbox("Spring stiffness (lbf/in)", k_opts)
+    # 6. scheme
     scheme = st.selectbox("Shoring scheme", ["Full (4 springs)", "Half (2 springs)"])
 
+# now this match will ALWAYS find a row, because every dropdown was filtered
 match = df[
     (df["span_in"] == span) &
     (df["depth_in"] == depth) &
@@ -38,8 +56,7 @@ match = df[
 st.divider()
 
 if len(match) == 0:
-    st.warning("No result for this combination. Try a different depth — "
-               "depth is tied to span (AASHTO ratio), so not all pairs exist.")
+    st.warning("No result found — please adjust your selection.")
 else:
     row = match.iloc[0]
     if scheme.startswith("Full"):
