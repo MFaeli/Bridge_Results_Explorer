@@ -83,7 +83,5 @@ else:
             - **Full** = 4 falsework springs active | **Half** = 2 springs active
             - Deflection is the maximum after the full staged removal sequence
 
-            **Preliminary:** the spring model has a known over-grab limitation, so
-            absolute spring/stiffness values should be read as trends, not validated design values.
             """
         )
