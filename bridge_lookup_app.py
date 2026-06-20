@@ -10,8 +10,8 @@ def load_data():
 df = load_data()
 df = df[df["status"] == "OK"]
 
-st.set_page_config(page_title="RC Box-Girder Shoring Results", page_icon="🌉")
-st.title("🌉 RC Box-Girder Deck-Removal Results Explorer")
+st.set_page_config(page_title="RC Box-Girder Shoring Results")
+st.title("RC Box-Girder Deck-Removal Results Explorer")
 st.caption("Browse finite-element results for staged deck replacement with falsework")
 
 st.write("Select a bridge configuration to see its computed deflection:")
