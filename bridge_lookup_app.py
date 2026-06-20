@@ -12,9 +12,8 @@ df = df[df["status"] == "OK"]
 
 st.set_page_config(page_title="RC Box-Girder Shoring Results", layout="wide")
 
-BLANK = "— select —"   # placeholder shown first
+BLANK = "— select —"
 
-# ---- INPUTS in the sidebar (each starts blank) ----
 with st.sidebar:
     st.header("Bridge Configuration")
 
@@ -72,15 +71,20 @@ with st.sidebar:
                         scheme_sel = st.selectbox("Shoring scheme",
                             [BLANK, "Full (4 springs)", "Half (2 springs)"])
 
+    # the Show Result button (always visible at the bottom of the sidebar)
+    st.write("")
+    show = st.button("Show Result", type="primary", use_container_width=True)
+
 # ---- MAIN AREA ----
 st.title("RC Box-Girder Deck-Removal Results Explorer")
 
-# only show results when ALL selections are made
-ready = (span_sel != BLANK and width_sel != BLANK and fc_sel != BLANK
-         and depth_sel != BLANK and k_sel != BLANK and scheme_sel != BLANK)
+all_selected = (span_sel != BLANK and width_sel != BLANK and fc_sel != BLANK
+                and depth_sel != BLANK and k_sel != BLANK and scheme_sel != BLANK)
 
-if not ready:
-    st.info("Select all bridge configuration options in the left panel to see the result.")
+if not show:
+    st.info("Select all bridge configuration options in the left panel, then click **Show Result**.")
+elif not all_selected:
+    st.warning("Please complete all selections before clicking Show Result.")
 else:
     match = df[
         (df["span_in"] == span) &
